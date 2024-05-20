@@ -1,118 +1,95 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
-
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+import 'react-native-gesture-handler'
+import { StatusBar } from 'react-native'
+import { createContext, useState, useRef } from 'react'
+import { NavigationContainer } from '@react-navigation/native'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import Home from './src/screens/Home/Home'
+import News from './src/screens/News/News'
+import NewPost from './src/screens/NewPost/NewPost'
+import { GetFromDataBase, RemoveFromDataBase } from './src/firebase/firebase'
+const Stack = createNativeStackNavigator<StackParamList>()
+interface MyContextType {
+  data: IDataItem[]
+  getNews: () => Promise<void>
+  deleteNews: () => Promise<void>
+  setId: (id: string) => void
+  fetchData: boolean
+}
+export const MyContext = createContext<MyContextType>({
+  data: [],
+  getNews: async () => {},
+  deleteNews: async () => {},
+  setId: () => {},
+  fetchData: false
+})
+export interface IDataItem {
+  id: string
+  title: string
+  text: string
+  date: string
+  imgUrl: string
+  link: string
+}
+export type StackParamList = {
+  Home: { id: string; title: string; text: string; date: string; imgUrl: string; link: string }
+  News: { id: string; title: string; text: string; date: string; imgUrl: string; link: string }
+  NewPost: undefined
+}
+function App() {
+  const [data, setData] = useState<IDataItem[]>([])
+  const [fetchData, setFetchData] = useState(false)
+  const currentId = useRef('0')
+  const setId = (id: string) => (currentId.current = id)
+  const getNews = async () => {
+    const data2: any = await GetFromDataBase()
+    setData(data2)
+  }
+  const deleteNews = async () => {
+    setFetchData(true)
+    await RemoveFromDataBase(currentId.current)
+    await new Promise((r) => setTimeout(r, 2000))
+    await getNews()
+    setFetchData(false)
+  }
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
+    <MyContext.Provider value={{ data, getNews, setId, deleteNews, fetchData}}>
+      <NavigationContainer>
+        <StatusBar hidden />
+        <Stack.Navigator initialRouteName='Home'>
+          <Stack.Screen
+            name='Home'
+            options={{
+              headerShown: false,
+              orientation: 'portrait',
+              animation: 'slide_from_left',
+              animationDuration: 300,
+            }}
+            component={Home}
+          />
+          <Stack.Screen
+            name='News'
+            options={{
+              headerShown: false,
+              orientation: 'portrait',
+              animation: 'slide_from_right',
+              animationDuration: 300,
+            }}
+            component={News}
+          />
+          <Stack.Screen
+            name='NewPost'
+            options={{
+              headerShown: false,
+              orientation: 'portrait',
+              animation: 'fade_from_bottom',
+              animationDuration: 300,
+            }}
+            component={NewPost}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </MyContext.Provider>
+  )
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
-
-export default App;
+export default App

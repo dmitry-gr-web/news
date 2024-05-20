@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AwesomeProject</string>
+    <color name="lightpurple">#ECF1FF</color>
 </resources>

@@ -5,10 +5,13 @@
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
-      android:icon="@mipmap/ic_launcher"
-      android:roundIcon="@mipmap/ic_launcher_round"
+      android:icon="@mipmap/image"
+      android:roundIcon="@mipmap/image"
       android:allowBackup="false"
       android:theme="@style/AppTheme">
+      <meta-data
+      android:name="com.facebook.react.modules.i18nmanager.DefaultLocaleOverride"
+      android:value="ru_RU" />
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
