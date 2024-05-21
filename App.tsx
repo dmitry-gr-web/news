@@ -12,15 +12,21 @@ interface MyContextType {
   data: IDataItem[]
   getNews: () => Promise<void>
   deleteNews: () => Promise<void>
+  onRefresh: () => Promise<void>
   setId: (id: string) => void
   fetchData: boolean
+  refreshing: boolean
+  setFetchData: React.Dispatch<React.SetStateAction<boolean>>;
 }
 export const MyContext = createContext<MyContextType>({
   data: [],
   getNews: async () => {},
   deleteNews: async () => {},
+  onRefresh: async () => {},
   setId: () => {},
-  fetchData: false
+  fetchData: false,
+  refreshing: false,
+  setFetchData: () => {}
 })
 export interface IDataItem {
   id: string
@@ -38,9 +44,16 @@ export type StackParamList = {
 function App() {
   const [data, setData] = useState<IDataItem[]>([])
   const [fetchData, setFetchData] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
   const currentId = useRef('0')
   const setId = (id: string) => (currentId.current = id)
+  const onRefresh = async () => {
+    setRefreshing(true)
+    await getNews()
+    setRefreshing(false)
+  }
   const getNews = async () => {
+    await new Promise((r) => setTimeout(r, 2000))
     const data2: any = await GetFromDataBase()
     setData(data2)
   }
@@ -52,7 +65,7 @@ function App() {
     setFetchData(false)
   }
   return (
-    <MyContext.Provider value={{ data, getNews, setId, deleteNews, fetchData}}>
+    <MyContext.Provider value={{ data, getNews, setId, deleteNews, fetchData, onRefresh, refreshing, setFetchData }}>
       <NavigationContainer>
         <StatusBar hidden />
         <Stack.Navigator initialRouteName='Home'>

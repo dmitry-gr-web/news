@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native'
+import { useContext } from 'react'
 import { ArrowIcon } from '../../assets/icons/Icons'
 import BtnWithIcon from '../../components/BtnWithIcon'
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen'
@@ -10,6 +11,7 @@ import { AddToDataBase } from '../../firebase/firebase.js'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { StackParamList } from '../../../App'
+import { MyContext } from '../../../App'
 interface Props {
   navigation: NativeStackNavigationProp<StackParamList, 'NewPost'>
 }
@@ -21,6 +23,7 @@ const PostSchema = z.object({
 })
 
 const NewPost: React.FC<Props> = ({ navigation }) => {
+  const { getNews, setFetchData } = useContext(MyContext)
   return (
     <View style={styles.container}>
       <BtnWithIcon style={styles.btnIcon} icon={<ArrowIcon />} onPress={() => navigation.goBack()} />
@@ -34,10 +37,13 @@ const NewPost: React.FC<Props> = ({ navigation }) => {
         initialValues={{ imgUrl: '', title: '', link: '', text: '' }}
         validationSchema={toFormikValidationSchema(PostSchema)}
         onSubmit={async (values) => {
-          console.log(values)
-          const {title,text,link,imgUrl} = values
-          await AddToDataBase({title,text,link,imgUrl})
+          const { title, text, link, imgUrl } = values
+          setFetchData(true)
           navigation.goBack()
+          await AddToDataBase({ title, text, link, imgUrl })
+          await getNews()
+          setFetchData(false)
+         
         }}
       >
         {({ handleChange, handleSubmit, values, isValid }) => {
@@ -69,7 +75,7 @@ const NewPost: React.FC<Props> = ({ navigation }) => {
                 multiline
                 placeholder={'Type  your message here..*'}
               />
-              <Btn style={{ marginTop: 'auto' }} disabled={!isValid} onPress={handleSubmit} text={'Public'} />
+              <Btn style={styles.btnSubmit} disabled={!isValid} onPress={handleSubmit} text={'Public'} />
             </View>
           )
         }}
@@ -82,6 +88,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#FCFCFC',
     flex: 1,
   },
+  btnSubmit: {
+    marginTop: 'auto',
+    bottom: wp(7),
+    position: 'absolute',
+    left: wp(7),
+  },
   btnIcon: {
     position: 'absolute',
     top: wp(7),
@@ -91,6 +103,7 @@ const styles = StyleSheet.create({
   inputsContainer: {
     padding: wp(7),
     flex: 1,
+    height:'100%'
   },
   headerTextContainer: {
     backgroundColor: '#FCFCFC',

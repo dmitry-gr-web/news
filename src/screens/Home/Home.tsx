@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext } from 'react'
+import { StyleSheet } from 'react-native'
 import { NoResult } from '../../assets/icons/Icons'
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen'
 import Popup from '../Popup/Popup'
@@ -14,38 +15,30 @@ interface Props {
   navigation: NativeStackNavigationProp<StackParamList, 'Home'>
 }
 const Home: React.FC<Props> = ({ navigation }) => {
-  const { data, getNews, deleteNews, setId, fetchData } = useContext(MyContext)
+  const { data, getNews, deleteNews, setId, fetchData, refreshing, onRefresh, setFetchData } = useContext(MyContext)
   const [searchQuery, setSearchQuery] = useState('')
-  const [refreshing, setRefreshing] = useState(false)
+
   const [close, setClose] = useState(false)
   const filteredData = data.filter((item) =>
     (item.title.toLowerCase() + item.text.toLowerCase()).includes(searchQuery.toLowerCase())
   )
   useEffect(() => {
-    getNews()
+    (async function(){
+      setFetchData(true)
+      await getNews()
+      setFetchData(false)
+    })()
+  
   }, [])
   const handleInputChange = (text: string) => {
     setSearchQuery(text)
   }
-  const onRefresh = async () => {
-    setRefreshing(true)
-    await getNews()
-    setRefreshing(false)
-  }
+
   const closeModal = () => setClose(false)
   const openModal = () => setClose(true)
   return (
-    <View
-      style={{
-        backgroundColor: '#FCFCFC',
-        flex: 1,
-        padding: wp(7),
-        paddingBottom: 0,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginBottom: 40 }}>
+    <View style={styles.homeContainer}>
+      <View style={styles.searchContainer}>
         <Search handleInputChange={handleInputChange} value={searchQuery} style={{ flex: 1, marginRight: wp(2.4) }} />
         <BtnWithIcon onPress={() => navigation.navigate('NewPost')} />
       </View>
@@ -68,11 +61,9 @@ const Home: React.FC<Props> = ({ navigation }) => {
         />
       )}
       {(data.length == 0 || filteredData.length == 0) && (
-        <View style={{ alignItems: 'center', marginVertical: 'auto' }}>
+        <View style={styles.noResultContainer}>
           <NoResult />
-          <Text style={{ marginTop: wp(6.7), fontSize: wp(3.7), fontFamily: 'Roboto-Regular', color: '#A4A9AE' }}>
-            No results found
-          </Text>
+          <Text style={styles.noResultText}>No results found</Text>
         </View>
       )}
       <Popup closeModal={closeModal} close={close} deleteNews={deleteNews} />
@@ -80,5 +71,31 @@ const Home: React.FC<Props> = ({ navigation }) => {
     </View>
   )
 }
+const styles = StyleSheet.create({
+  homeContainer: {
+    backgroundColor: '#FCFCFC',
+    flex: 1,
+    padding: wp(7),
+    paddingBottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: wp(9.4),
+  },
+  noResultContainer: {
+    alignItems: 'center',
+    marginVertical: 'auto',
+  },
+  noResultText: {
+    marginTop: wp(6.7),
+    fontSize: wp(3.7),
+    fontFamily: 'Roboto-Regular',
+    color: '#A4A9AE',
+  },
+})
 
 export default Home
