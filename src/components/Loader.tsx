@@ -12,7 +12,7 @@ const Loader = () => {
         top:0,
         flex:1,
         zIndex: 10,
-        backgroundColor: 'rgba(179, 179, 179,0.5)',
+        // backgroundColor: 'rgba(179, 179, 179,0.5)',
       }}
       size={'large'}
       color={'#456EFE4D'}

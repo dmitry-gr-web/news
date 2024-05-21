@@ -6,6 +6,8 @@
         <item name="android:windowBackground">@color/lightpurple</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowContentOverlay">@null</item>
+        <!-- <item name="android:windowDisablePreview">true</item> -->
+        <!-- <item name="android:windowIsTranslucent">true</item> -->
     </style>
 
 </resources>
