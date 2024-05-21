@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from 'react'
-import { StyleSheet } from 'react-native'
+import { StyleSheet, SafeAreaView } from 'react-native'
 import { NoResult } from '../../assets/icons/Icons'
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen'
 import Popup from '../Popup/Popup'

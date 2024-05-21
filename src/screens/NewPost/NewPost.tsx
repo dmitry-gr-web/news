@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, SafeAreaView } from 'react-native'
 import { useContext } from 'react'
 import { ArrowIcon } from '../../assets/icons/Icons'
 import BtnWithIcon from '../../components/BtnWithIcon'
@@ -85,6 +85,7 @@ const NewPost: React.FC<Props> = ({ navigation }) => {
 }
 const styles = StyleSheet.create({
   container: {
+    position:'relative',
     backgroundColor: '#FCFCFC',
     flex: 1,
   },

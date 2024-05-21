@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler'
-import { StatusBar } from 'react-native'
+import { StatusBar , SafeAreaView} from 'react-native'
 import { createContext, useState, useRef } from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
@@ -66,6 +66,7 @@ function App() {
   }
   return (
     <MyContext.Provider value={{ data, getNews, setId, deleteNews, fetchData, onRefresh, refreshing, setFetchData }}>
+      <SafeAreaView style={{flex:1,    backgroundColor: '#FCFCFC',}}>
       <NavigationContainer>
         <StatusBar hidden />
         <Stack.Navigator initialRouteName='Home'>
@@ -101,6 +102,7 @@ function App() {
           />
         </Stack.Navigator>
       </NavigationContainer>
+      </SafeAreaView>
     </MyContext.Provider>
   )
 }
